@@ -18,8 +18,10 @@ enum Catalog {
   CONJURED
 }
 
+const MAX_QUALITY = 50;
+
 class EnhancedItem extends Item {
-  catalog: Catalog;
+  catalog?: Catalog;
   constructor(name: string, sellIn: number, quality:number) {
     super(name,sellIn,quality);
     if(name === 'Aged Brie'){
@@ -34,9 +36,37 @@ class EnhancedItem extends Item {
       this.catalog = Catalog.NORMAL;
     }
   }
+
+  updateQuality() {
+    if(this.catalog !== Catalog.SULFURAS){
+      this.sellIn--;
+    }
+    switch(this.catalog){
+      case Catalog.NORMAL:
+        this.quality = Math.max(0,this.sellIn < 0 ? this.quality - 2 :this.quality - 1);
+        break;
+      case Catalog.CONJURED:
+        this.quality = Math.max(0,this.sellIn < 0 ? this.quality - 4 :this.quality - 2);
+      case Catalog.AGED_BRIE:
+        this.quality = Math.min(MAX_QUALITY, this.quality + 1);
+      case Catalog.SULFURAS:
+        let stepper = 1;
+        if(this.sellIn < 0){
+          stepper = -this.quality;
+        }else if(this.sellIn < 6){
+          stepper = 3;
+        }else if(this.sellIn < 11){
+          stepper = 2;
+        }
+        this.quality = this.quality + stepper
+      default:
+        // for 'SULFURAS', we don't update quality and sellIn
+        break;
+    }
+  }
 }
 
-const MAX_QUALITY = 50;
+
 
 
 
@@ -44,8 +74,14 @@ const MAX_QUALITY = 50;
 export class GildedRose {
   items: Array<EnhancedItem>;
 
-  constructor(items = [] as Array<Item>) {
-    this.items = items.map(i=> new EnhancedItem(i.name,i.sellIn,i.quality));
+  constructor(_items = [] as Array<Item>) {
+    this.items = _items.map(i=> new EnhancedItem(i.name,i.sellIn,i.quality));
+  }
+
+  outputItems(){
+    this.items.forEach(element => {
+      console.log(element.name + ', ' + element.sellIn + ', ' + element.quality);
+    });
   }
 
   updateQuality() {
@@ -94,7 +130,7 @@ export class GildedRose {
         }
       }
     }
-
-    return this.items;
+    return this.items.map(t=>new Item(t.name,t.sellIn,t.quality));
   }
 }
+
