@@ -10,11 +10,42 @@ export class Item {
   }
 }
 
+enum Catalog {
+  NORMAL,
+  AGED_BRIE,
+  BACKSTAGE_PASSES,
+  SULFURAS,
+  CONJURED
+}
+
+class EnhancedItem extends Item {
+  catalog: Catalog;
+  constructor(name: string, sellIn: number, quality:number) {
+    super(name,sellIn,quality);
+    if(name === 'Aged Brie'){
+      this.catalog = Catalog.AGED_BRIE;
+    }else if(name === 'Backstage passes to a TAFKAL80ETC concert'){
+      this.catalog = Catalog.BACKSTAGE_PASSES;
+    }else if(name === 'Sulfuras, Hand of Ragnaros'){
+      this.catalog = Catalog.SULFURAS;
+    }else if(name === 'Conjured Mana Cake'){
+      this.catalog = Catalog.CONJURED;
+    }else{
+      this.catalog = Catalog.NORMAL;
+    }
+  }
+}
+
+const MAX_QUALITY = 50;
+
+
+
+
 export class GildedRose {
-  items: Array<Item>;
+  items: Array<EnhancedItem>;
 
   constructor(items = [] as Array<Item>) {
-    this.items = items;
+    this.items = items.map(i=> new EnhancedItem(i.name,i.sellIn,i.quality));
   }
 
   updateQuality() {
@@ -26,16 +57,16 @@ export class GildedRose {
           }
         }
       } else {
-        if (this.items[i].quality < 50) {
+        if (this.items[i].quality < MAX_QUALITY) {
           this.items[i].quality = this.items[i].quality + 1
           if (this.items[i].name == 'Backstage passes to a TAFKAL80ETC concert') {
             if (this.items[i].sellIn < 11) {
-              if (this.items[i].quality < 50) {
+              if (this.items[i].quality < MAX_QUALITY) {
                 this.items[i].quality = this.items[i].quality + 1
               }
             }
             if (this.items[i].sellIn < 6) {
-              if (this.items[i].quality < 50) {
+              if (this.items[i].quality < MAX_QUALITY) {
                 this.items[i].quality = this.items[i].quality + 1
               }
             }
@@ -57,7 +88,7 @@ export class GildedRose {
             this.items[i].quality = this.items[i].quality - this.items[i].quality
           }
         } else {
-          if (this.items[i].quality < 50) {
+          if (this.items[i].quality < MAX_QUALITY) {
             this.items[i].quality = this.items[i].quality + 1
           }
         }
